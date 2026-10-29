@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Trip Dossier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Josefin+Sans:wght@400;600&display=swap">
+<style>
+/* Layout: companion to Curated Travel Experiences and Curated Gifts. Masthead, trip-at-a-glance strip, day tabs over a timeline, and a side panel for contacts, documents and contingencies. Single light theme by design. */
+:root{
+  --ivory:#F7F4EE; --paper:#FCFAF6; --panel:#E4EBF0; --navy:#1E2B47; --navy-2:#4A5672;
+  --gold:#B28A4F; --gold-soft:#D9C49E; --line:#E3DBCC; --mute:#7A7F8C;
+  --ok:#3E6B4E; --hold:#9A6B2E; --pend:#7A7F8C;
+  --display:"Cormorant Garamond","Iowan Old Style",Georgia,serif;
+  --caps:"Josefin Sans","Helvetica Neue",Arial,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{background:var(--ivory);color:var(--navy);font-family:var(--display);font-size:18px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1200px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-weight:500;margin:0;text-wrap:balance}
+p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;padding:0}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.caps{font-family:var(--caps);text-transform:uppercase;letter-spacing:.18em;font-size:.6rem}
+
+.topbar{display:flex;justify-content:space-between;align-items:center;padding-block:22px 0;gap:12px}
+.topbar a,.topbar span{font-family:var(--caps);text-transform:uppercase;letter-spacing:.18em;font-size:.6rem;color:var(--navy-2);text-decoration:none;padding-bottom:6px;border-bottom:1px solid var(--gold-soft)}
+.masthead{text-align:center;padding-block:6px 26px}
+.masthead svg{width:64px;height:30px;stroke:var(--gold);fill:none;stroke-width:1}
+.masthead h1{font-size:clamp(1.9rem,4.6vw,2.8rem);letter-spacing:.16em;text-transform:uppercase;font-weight:400}
+.masthead .tag{margin-top:14px;font-style:italic;font-size:clamp(1.5rem,3.2vw,2.1rem)}
+.masthead .sub{margin-top:6px;color:var(--navy-2)}
+
+/* at a glance */
+.glance{display:grid;grid-template-columns:1.4fr repeat(4,minmax(0,1fr));border:1px solid var(--gold-soft);background:var(--paper)}
+.glance>div{padding:16px 18px;border-left:1px solid var(--line);display:flex;flex-direction:column;gap:4px;min-width:0}
+.glance>div:first-child{border-left:0}
+.glance .k{color:var(--navy-2)}
+.glance .v{font-size:1.15rem;line-height:1.25}
+.route{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:1.15rem}
+.route i{color:var(--gold);font-style:normal}
+
+/* layout */
+.main{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:28px;margin-top:28px;padding-bottom:40px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.tab{font-family:var(--caps);text-transform:uppercase;letter-spacing:.16em;font-size:.6rem;padding:12px 14px 10px;border:1px solid var(--line);background:var(--paper);text-align:left;line-height:1.5}
+.tab b{display:block;font-weight:600}
+.tab[aria-selected="true"]{background:var(--navy);color:var(--ivory);border-color:var(--navy)}
+.dayhead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;padding-bottom:12px;border-bottom:1px solid var(--gold-soft)}
+.dayhead h2{font-size:clamp(1.6rem,3vw,2.1rem)}
+.dayhead .meta{color:var(--navy-2)}
+.legend{display:flex;gap:14px;margin:12px 0 4px;flex-wrap:wrap}
+
+/* timeline */
+.tl{list-style:none;margin:0;padding:0}
+.ev{display:grid;grid-template-columns:96px 22px minmax(0,1fr);gap:0 14px;cursor:pointer}
+.ev .time{text-align:right;padding-top:16px;font-variant-numeric:tabular-nums}
+.ev .time b{display:block;font-weight:500;font-size:1.15rem}
+.ev .time small{display:block;color:var(--mute);font-size:.82rem}
+.ev .rail{position:relative}
+.ev .rail::before{content:"";position:absolute;left:10px;top:0;bottom:0;width:1px;background:var(--gold-soft)}
+.ev .dot{position:absolute;left:4px;top:22px;width:13px;height:13px;border-radius:50%;background:var(--paper);border:1.5px solid var(--gold)}
+.ev .body{padding:12px 16px 12px;margin:6px 0;border:1px solid transparent;transition:background .2s,border-color .2s}
+.ev:hover .body{background:var(--paper);border-color:var(--line)}
+.ev.open .body{background:var(--paper);border-color:var(--gold-soft)}
+.ev h3{font-size:1.3rem;line-height:1.2;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.ev .line{color:var(--navy-2);font-size:1rem}
+.chip{font-family:var(--caps);text-transform:uppercase;letter-spacing:.14em;font-size:.52rem;padding:4px 8px 3px;border:1px solid currentColor;white-space:nowrap}
+.chip.ok{color:var(--ok)} .chip.hold{color:var(--hold)} .chip.pend{color:var(--pend)}
+.more{display:none;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+.ev.open .more{display:grid;gap:6px}
+.more div{display:grid;grid-template-columns:110px 1fr;gap:10px;font-size:.98rem}
+.more dt{font-family:var(--caps);text-transform:uppercase;letter-spacing:.14em;font-size:.55rem;color:var(--navy-2);padding-top:5px}
+.more dd{margin:0}
+.planb{background:var(--panel);padding:8px 12px;font-style:italic}
+.hint{color:var(--mute);font-style:italic;font-size:.95rem;margin-top:8px}
+
+/* side */
+.side{display:flex;flex-direction:column;gap:14px;align-self:start;position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px)}
+.card{background:var(--paper);border:1px solid var(--line)}
+.card summary{list-style:none;cursor:pointer;padding:14px 18px;display:flex;justify-content:space-between;align-items:center}
+.card summary::-webkit-details-marker{display:none}
+.card summary::after{content:"+";color:var(--gold);font-size:1.2rem}
+.card[open] summary::after{content:"–"}
+.card .in{padding:0 18px 16px;display:grid;gap:10px;font-size:1rem}
+.person{display:grid;gap:1px;padding-top:10px;border-top:1px solid var(--line)}
+.person b{font-weight:500;font-size:1.08rem}
+.person span{color:var(--navy-2);font-size:.95rem}
+.check{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+.check input{appearance:none;width:15px;height:15px;border:1.5px solid var(--navy-2);margin-top:5px;flex:none;display:grid;place-items:center;background:var(--paper)}
+.check input:checked{background:var(--navy);border-color:var(--navy)}
+.check input:checked::after{content:"";width:4px;height:8px;border:solid var(--ivory);border-width:0 1.5px 1.5px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.check input:checked+span{color:var(--mute);text-decoration:line-through}
+.if{padding-top:10px;border-top:1px solid var(--line)}
+.if b{font-weight:500}
+.if p{color:var(--navy-2);font-size:.98rem}
+.note{background:var(--navy);color:var(--ivory);padding:18px}
+.note .caps{color:var(--gold-soft)}
+.note p{font-style:italic;font-size:1.1rem;margin-top:6px}
+
+footer{border-top:1px solid var(--gold-soft);padding-block:26px 40px;text-align:center}
+.steps{font-family:var(--caps);text-transform:uppercase;letter-spacing:.22em;font-size:.6rem;color:var(--navy-2);display:flex;flex-wrap:wrap;justify-content:center;gap:8px 14px}
+.steps i{color:var(--gold);font-style:normal}
+.fine{max-width:64ch;margin:12px auto 0;font-style:italic;color:var(--mute);font-size:.95rem}
+
+@media (max-width:980px){
+  .main{grid-template-columns:1fr}
+  .side{position:static}
+  .glance{grid-template-columns:1fr 1fr}
+  .glance>div:first-child{grid-column:1/-1}
+  .glance>div:nth-child(2),.glance>div:nth-child(4){border-left:0}
+  .glance>div{border-top:1px solid var(--line)}
+  .glance>div:first-child{border-top:0}
+}
+@media (max-width:560px){
+  .ev{grid-template-columns:62px 18px minmax(0,1fr);gap:0 8px}
+  .ev .time b{font-size:1rem}
+  .more div{grid-template-columns:1fr;gap:0}
+  .topbar span{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <div class="topbar">
+    <span>Portfolio project</span>
+    <a href="https://yuliaknowles.wixsite.com/yulia-knowles" target="_blank" rel="noopener noreferrer">← Back to Yulia's website</a>
+  </div>
+  <header class="masthead">
+    <svg viewBox="0 0 64 30" aria-hidden="true"><path d="M12 28a20 20 0 0 1 40 0"/><path d="M32 2v6M18 6l3 5M46 6l-3 5M8 14l5 3M56 14l-5 3M4 24h6M54 24h6"/><path d="M2 28h60"/></svg>
+    <h1>The Trip Dossier</h1>
+    <p class="caps" style="margin-top:4px;color:var(--navy-2)">By Yulia Knowles</p>
+    <p class="tag">Every minute accounted for.</p>
+    <p class="sub">A sample five-day business trip for a founder, planned to the minute, with a backup for every moving part.</p>
+  </header>
+
+  <section class="glance" aria-label="Trip at a glance">
+    <div><span class="caps k">Route</span><span class="route">Miami <i>→</i> London <i>→</i> Zürich <i>→</i> Miami</span></div>
+    <div><span class="caps k">Dates</span><span class="v">Mon 16 – Fri 20 Nov 2026</span></div>
+    <div><span class="caps k">Traveller</span><span class="v">The principal, plus his chief of staff on days 2–3</span></div>
+    <div><span class="caps k">Purpose</span><span class="v">Investor meetings, one board dinner</span></div>
+    <div><span class="caps k">Status</span><span class="v" id="status"></span></div>
+  </section>
+
+  <div class="main">
+    <section aria-label="Itinerary">
+      <div class="tabs" role="tablist" id="tabs"></div>
+      <div class="dayhead"><h2 id="dayTitle"></h2><span class="meta" id="dayMeta"></span></div>
+      <div class="legend">
+        <span class="chip ok">Confirmed</span><span class="chip hold">On hold</span><span class="chip pend">To book</span>
+      </div>
+      <ol class="tl" id="tl"></ol>
+      <p class="hint">Tap any line for the details and the backup plan. Times are local, with Miami time underneath for the office.</p>
+    </section>
+
+    <aside class="side">
+      <details class="card" open>
+        <summary><span class="caps">On the ground</span></summary>
+        <div class="in" id="contacts"></div>
+      </details>
+      <details class="card">
+        <summary><span class="caps">Documents & packing</span></summary>
+        <div class="in" id="docs"></div>
+      </details>
+      <details class="card">
+        <summary><span class="caps">If plans change</span></summary>
+        <div class="in" id="ifs"></div>
+      </details>
+      <div class="note">
+        <span class="caps">How I'd hand it over</span>
+        <p>One page per day in his inbox at 7 p.m. the night before, the full dossier offline on his phone, and me reachable on every time zone.</p>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="steps"><span>Plan</span><i>·</i><span>Book</span><i>·</i><span>Confirm</span><i>·</i><span>Brief</span><i>·</i><span>Monitor</span></div>
+    <p class="fine">Illustrative portfolio sample. The traveller, meetings, contacts and reference numbers are fictional; hotels, flights and timings are shown as examples and would be confirmed at booking.</p>
+  </div>
+</footer>
+
+<script>
+const DAYS=[
+ {tab:"Mon 16",city:"Miami → London",title:"Day 1 · Overnight to London",meta:"Miami EST · London GMT (+5 h)",ev:[
+  {t:"16:15",m:"",what:"Car to Miami International",line:"Private car from home, 45 minutes; bags collected at the door.",st:"ok",d:[["Driver","Car service, black SUV; driver's name and photo sent the day before"],["Note","Global Entry and passport checked into his travel wallet the night before"]],b:"If traffic on I-95 is heavy, the car leaves at 15:45; the driver tracks it live."},
+  {t:"18:40",m:"",what:"Flight MIA → LHR",line:"British Airways, First, overnight. Lounge access before boarding.",st:"ok",d:[["Seat","1A, window, bed made after dinner"],["Meal","Pre-ordered: light dinner, no dairy"],["Reference","Booking ref ABC123 (sample)"]],b:"If cancelled: held seat on the 21:55 Virgin flight; London car and hotel shift automatically."}
+ ]},
+ {tab:"Tue 17",city:"London",title:"Day 2 · London",meta:"London GMT · Miami 5 h behind",ev:[
+  {t:"08:20",m:"03:20",what:"Arrive Heathrow T5, Fast Track",line:"Met at the aircraft door; car straight to the hotel.",st:"ok",d:[["Greeter","Meet-and-assist service through arrivals"],["Car","Driver waiting landside with name board"]],b:"If the flight is late, the greeter and driver both track the flight number; no call needed."},
+  {t:"09:30",m:"04:30",what:"Check in, Raffles London at The OWO",line:"Early check-in guaranteed; breakfast in the suite.",st:"ok",d:[["Room","Suite booked from the night before, so it's ready on arrival"],["Requests","Shirts pressed on arrival; quiet room away from the lift"]],b:"If the suite isn't ready, a day room on the same floor is held."},
+  {t:"11:00",m:"06:00",what:"Rest and prep",line:"Two clear hours. Investor briefing pack on the desk.",st:"ok",d:[["Pack","One-page bios of everyone at lunch, printed and in his inbox"]],b:"—"},
+  {t:"13:00",m:"08:00",what:"Lunch with lead investor",line:"Private room, Mayfair restaurant. Chief of staff joins.",st:"hold",d:[["Guests","Investor, his partner, our principal, chief of staff"],["Diet","Investor is vegetarian; noted on the booking"]],b:"If the investor's flight slips, lunch moves to 18:30 drinks at the hotel bar, table already held."},
+  {t:"19:30",m:"14:30",what:"Board dinner",line:"Six directors, private dining room. Seating plan approved.",st:"ok",d:[["Seating","Principal at centre; new director beside him"],["Car","Driver waits; return by 22:30"]],b:"If a director drops out, the table is reset for five; place cards printed both ways."}
+ ]},
+ {tab:"Wed 18",city:"London → Zürich",title:"Day 3 · To Zürich",meta:"Zürich CET (+1 h from London)",ev:[
+  {t:"07:30",m:"02:30",what:"Breakfast meeting at the hotel",line:"Chief of staff only; the principal joins for 20 minutes.",st:"ok",d:[["Room","Small meeting room off the lobby"]],b:"—"},
+  {t:"10:45",m:"05:45",what:"Car to London City Airport",line:"Shorter queues than Heathrow; About 35 minutes from Whitehall.",st:"ok",d:[["Bags","Sent ahead from the hotel to the jet"]],b:"If the car is delayed, a second car is on standby with the same company."},
+  {t:"12:00",m:"07:00",what:"Private flight LCY → ZRH",line:"Light jet, 1 h 40 min. Lunch on board.",st:"pend",d:[["Operator","Two quotes requested; choosing on safety rating and aircraft age"],["Catering","Lunch for one, no dairy"]],b:"If weather grounds the jet, the 13:25 SWISS flight is held as backup."},
+  {t:"15:30",m:"09:30",what:"Check in, Baur au Lac",line:"Lakeside room on the park, a short walk from Bahnhofstrasse.",st:"ok",d:[["Evening","In-room massage at 18:00, therapist preference noted"]],b:"—"}
+ ]},
+ {tab:"Thu 19",city:"Zürich",title:"Day 4 · Zürich",meta:"Zürich CET · Miami 6 h behind",ev:[
+  {t:"09:00",m:"03:00",what:"Meetings at the bank",line:"Three back-to-back meetings, Bahnhofstrasse.",st:"ok",d:[["Arrival","Driver drops at the side entrance; visitor badges pre-registered"],["Pack","Agenda and attendees in his inbox at 7:00"]],b:"If a meeting runs long, the next one has a 15-minute buffer agreed with their EA."},
+  {t:"13:00",m:"07:00",what:"Lunch, free",line:"Kept open on purpose. Table held at the hotel in case.",st:"hold",d:[],b:"—"},
+  {t:"16:00",m:"10:00",what:"Founder coffee",line:"Informal meeting with a portfolio founder, hotel lounge.",st:"ok",d:[],b:"—"},
+  {t:"19:30",m:"13:30",what:"Dinner, his choice",line:"Two restaurants shortlisted; he picks by noon.",st:"pend",d:[["Options","A quiet Swiss classic, or a tasting menu in the old town"]],b:"If he's tired, dinner in the room; menu sent at 18:00."}
+ ]},
+ {tab:"Fri 20",city:"Zürich → Miami",title:"Day 5 · Home",meta:"Arrives Miami same day",ev:[
+  {t:"08:30",m:"02:30",what:"Car to Zürich Airport",line:"30 minutes. Hotel bill settled the night before.",st:"ok",d:[],b:"—"},
+  {t:"10:20",m:"04:20",what:"Flight ZRH → MIA",line:"SWISS, First, direct, 10 h 40 min.",st:"ok",d:[["Seat","First Class suite"],["Arrival","Lands 15:00 Miami time"]],b:"If cancelled: rebooked via London on the same day; the office is told before he lands."},
+  {t:"15:00",m:"15:00",what:"Car home, weekend clear",line:"Driver at arrivals. Nothing scheduled until Monday.",st:"ok",d:[["Follow-up","Thank-you notes to the investor and board drafted for his review on Monday"]],b:"—"}
+ ]}
+];
+const CONTACTS=[["Yulia Knowles","Trip lead · reachable 24/7 on Telegram/Signal"],["London driver","Car service · on call days 2–3"],["Raffles butler team","Named contact, briefed on preferences"],["Zürich driver","Car service · days 3–5"],["Baur au Lac","Guest relations, named contact"],["Jet operator","Duty manager, day 3"]];
+const DOCS=["Passport, valid 6+ months","Global Entry card","Two credit cards, travel notice set","UK and Swiss plugs, phone chargers","eSIM active for UK and Switzerland","Board pack, printed and on tablet","Dinner suit for the board dinner","Medications in carry-on"];
+const IFS=[["Flight cancelled","Backup seats held on another airline for every flight; cars and hotels move automatically."],["He's unwell","Hotel doctor on call in both cities; travel insurance details in his wallet."],["A meeting moves","Every meeting has a buffer; I rebook directly with the other EA."],["Lost luggage","Spare shirts and essentials in the carry-on; hotel tailor and shops briefed."]];
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+const LABEL={ok:"Confirmed",hold:"On hold",pend:"To book"};
+let day=0;
+
+function counts(){let c={ok:0,hold:0,pend:0};DAYS.forEach(d=>d.ev.forEach(e=>c[e.st]++));return c;}
+const c=counts(); $("status").textContent=`${c.ok} confirmed · ${c.hold} on hold · ${c.pend} to book`;
+
+$("tabs").innerHTML=DAYS.map((d,i)=>`<button class="tab" role="tab" aria-selected="${i===0}" data-i="${i}"><b>${d.tab}</b>${d.city}</button>`).join("");
+$("tabs").querySelectorAll(".tab").forEach(b=>b.onclick=()=>{day=+b.dataset.i;render();});
+
+function render(){
+  $("tabs").querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",+b.dataset.i===day));
+  const d=DAYS[day]; $("dayTitle").textContent=d.title; $("dayMeta").textContent=d.meta;
+  $("tl").innerHTML=d.ev.map((e,i)=>`
+    <li class="ev" data-i="${i}" tabindex="0" role="button" aria-expanded="false">
+      <div class="time"><b>${e.t}</b>${e.m&&e.m!==e.t?`<small>${e.m} Miami</small>`:""}</div>
+      <div class="rail"><span class="dot"></span></div>
+      <div class="body">
+        <h3>${esc(e.what)} <span class="chip ${e.st}">${LABEL[e.st]}</span></h3>
+        <p class="line">${esc(e.line)}</p>
+        <dl class="more">
+          ${e.d.map(([k,v])=>`<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}
+          ${e.b&&e.b!=="—"?`<div><dt>Backup</dt><dd class="planb">${esc(e.b)}</dd></div>`:""}
+        </dl>
+      </div>
+    </li>`).join("");
+  $("tl").querySelectorAll(".ev").forEach(li=>{
+    const toggle=()=>{const o=li.classList.toggle("open");li.setAttribute("aria-expanded",o);};
+    li.onclick=toggle; li.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();toggle();}};
+  });
+}
+$("contacts").innerHTML=CONTACTS.map(([n,r])=>`<div class="person"><b>${esc(n)}</b><span>${esc(r)}</span></div>`).join("");
+$("docs").innerHTML=DOCS.map((t,i)=>`<label class="check" for="doc${i}"><input type="checkbox" id="doc${i}"><span>${esc(t)}</span></label>`).join("");
+$("ifs").innerHTML=IFS.map(([h,t])=>`<div class="if"><b>${esc(h)}</b><p>${esc(t)}</p></div>`).join("");
+render();
+</script>
+
+</body>
+</html>
